@@ -108,6 +108,22 @@
 
         <div class="qr-section">
             <label>🔒 ⑧ 第三者チェック（必須）</label>
+            
+            <div style="text-align: left; margin: 10px 0; background: #ffffff; padding: 10px; border-radius: 5px; font-size: 14px;">
+                <label style="font-weight: normal; margin-bottom: 6px;">
+                    <input type="checkbox" required style="width: auto; margin-right: 5px;"> 🪪 免許証はあるか？
+                </label>
+                <label style="font-weight: normal; margin-bottom: 6px;">
+                    <input type="checkbox" required style="width: auto; margin-right: 5px;"> 📱 ラウンド用携帯を持っているか？
+                </label>
+                <label style="font-weight: normal; margin-bottom: 6px;">
+                    <input type="checkbox" required style="width: auto; margin-right: 5px;"> 📁 個人情報管理は適切か？
+                </label>
+                <label style="font-weight: normal;">
+                    <input type="checkbox" required style="width: auto; margin-right: 5px;"> 💴 会計がある場合、釣銭を持っているか？
+                </label>
+            </div>
+
             <button type="button" class="camera-btn" id="start-camera-btn" onclick="startQRScan()">📷 他のプランナーのQRコードを読取</button>
             <div id="video-container">
                 <video id="qr-video" playsinline></video>
@@ -122,8 +138,8 @@
 </div>
 
 <script>
-    // ※ステップ1でコピーした「ウェブアプリのURL」を下の " " の中に貼り付けます
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzUUg1RKssc_TiCsPac8LMvnXLz31QLzoif4tdKAF2OzbDadFeL-qD4ya-LFKGsZXVp/exec";
+    // ※スプレッドシートのWebアプリURLをここに貼り付け
+    const WEB_APP_URL = "ここにウェブアプリのURLを貼り付ける";
 
     const memberMap = {
         'CHECK-KOIKE': '小池',

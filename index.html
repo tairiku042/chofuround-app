@@ -37,7 +37,18 @@
     <form id="ledgerForm">
         <div class="form-group">
             <label>👤 プランナー名</label>
-            <input type="text" id="planner" placeholder="例: 山田太郎" required>
+            <select id="planner" required>
+                <option value="">選択してください</option>
+                <option value="小池">小池</option>
+                <option value="石川">石川</option>
+                <option value="岡本">岡本</option>
+                <option value="松尾">松尾</option>
+                <option value="大澤">大澤</option>
+                <option value="葛原">葛原</option>
+                <option value="藤井">藤井</option>
+                <option value="無州">無州</option>
+                <option value="加藤">加藤</option>
+            </select>
         </div>
         
         <div class="form-group">
@@ -46,21 +57,26 @@
         </div>
 
         <div class="form-group">
-            <label>② お客様番号・お名前（苗字）</label>
-            <input type="text" id="customer" placeholder="例: 10023 山田" required>
+            <label>② お客様番号</label>
+            <input type="text" id="customerId" placeholder="例: 10023" required>
         </div>
 
         <div class="form-group">
-            <label>③ 出発時間</label>
+            <label>③ お客様お名前（苗字のみ・カタカナ）</label>
+            <input type="text" id="customerName" placeholder="苗字をカタカナで入力" pattern="[\u30A1-\u30FC]+" title="カタカナのみで入力してください" required>
+        </div>
+
+        <div class="form-group">
+            <label>④ 出発時間</label>
             <input type="time" id="startTime" required>
         </div>
         <div class="form-group">
-            <label>④ 戻り予定時間</label>
+            <label>⑤ 戻り予定時間</label>
             <input type="time" id="endTime" required>
         </div>
 
         <div class="form-group">
-            <label>⑤ 移動手段</label>
+            <label>⑥ 移動手段</label>
             <select id="transport" onchange="toggleTransportSection()" required>
                 <option value="">選択してください</option>
                 <option value="公共交通機関">公共交通機関</option>
@@ -87,7 +103,7 @@
         </div>
 
         <div class="form-group">
-            <label>⑥ ONSITE区分</label>
+            <label>⑦ ONSITE区分</label>
             <select id="onsite" required>
                 <option value="">選択してください</option>
                 <option value="ONSITE">ONSITE</option>
@@ -95,7 +111,7 @@
             </select>
         </div>
         <div class="form-group">
-            <label>⑦ Asset数</label>
+            <label>⑧ Asset数</label>
             <select id="asset" required>
                 <option value="">選択してください</option>
                 <option value="0">0</option>
@@ -107,7 +123,7 @@
         </div>
 
         <div class="qr-section">
-            <label>🔒 ⑧ 第三者チェック（必須）</label>
+            <label>🔒 ⑨ 第三者チェック（必須）</label>
             
             <div style="text-align: left; margin: 10px 0; background: #ffffff; padding: 10px; border-radius: 5px; font-size: 14px;">
                 <label style="font-weight: normal; margin-bottom: 6px;">
@@ -191,6 +207,12 @@
     let animationId = null;
 
     function startQRScan() {
+        const planner = document.getElementById('planner').value;
+        if (!planner) {
+            alert('最初に「プランナー名」を選択してください。');
+            return;
+        }
+
         const video = document.getElementById('qr-video');
         const container = document.getElementById('video-container');
         container.style.display = 'block';
@@ -227,6 +249,14 @@
                 const qrText = code.data;
                 if (memberMap[qrText]) {
                     const verifierName = memberMap[qrText];
+                    const plannerName = document.getElementById('planner').value;
+
+                    // 同一人物チェック：プランナーと確認者が同じなら弾く
+                    if (plannerName === verifierName) {
+                        alert("⚠️ プランナー自身を第三者確認者に指定することはできません。\n他のメンバーのQRコードを読み取ってください。");
+                        stopCamera();
+                        return;
+                    }
                     
                     document.getElementById('verifier').value = verifierName;
                     const statusDiv = document.getElementById('verify-status');
@@ -269,7 +299,8 @@
         const data = {
             planner: document.getElementById('planner').value,
             date: document.getElementById('date').value,
-            customer: document.getElementById('customer').value,
+            customerId: document.getElementById('customerId').value,
+            customerName: document.getElementById('customerName').value,
             startTime: document.getElementById('startTime').value,
             endTime: document.getElementById('endTime').value,
             transport: document.getElementById('transport').value,

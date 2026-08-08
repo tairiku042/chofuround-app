@@ -39,16 +39,23 @@
             <label>👤 プランナー名</label>
             <select id="planner" required>
                 <option value="">選択してください</option>
-                <option value="小池">小池</option>
-                <option value="石川">石川</option>
-                <option value="岡本">岡本</option>
-                <option value="松尾">松尾</option>
-                <option value="大澤">大澤</option>
-                <option value="葛原">葛原</option>
-                <option value="藤井">藤井</option>
-                <option value="無州">無州</option>
-                <option value="加藤">加藤</option>
+                <option value="小池大陸">小池大陸</option>
+                <option value="石川久恵">石川久恵</option>
+                <option value="大澤彰二">大澤彰二</option>
+                <option value="松尾健一朗">松尾健一朗</option>
+                <option value="岡本慧">岡本慧</option>
+                <option value="加藤みるく">加藤みるく</option>
+                <option value="藤井宏典">藤井宏典</option>
+                <option value="無州愛">無州愛</option>
+                <option value="葛原大暉">葛原大暉</option>
             </select>
+            
+            <!-- 森川さん同行チェックボックス -->
+            <div style="margin-top: 8px;">
+                <label style="font-weight: normal; font-size: 14px; cursor: pointer;">
+                    <input type="checkbox" id="morikawaAccompany" style="width: auto; margin-right: 5px;"> 🌲 森川さんと一緒に行く（同行あり）
+                </label>
+            </div>
         </div>
         
         <div class="form-group">
@@ -58,7 +65,7 @@
 
         <div class="form-group">
             <label>② お客様番号</label>
-            <input type="text" id="customerId" placeholder="例: 10023" required>
+            <input type="text" id="customerId" placeholder="例: 12345678" required>
         </div>
 
         <div class="form-group">
@@ -157,16 +164,17 @@
     // ※スプレッドシートのWebアプリURLをここに貼り付け
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzUUg1RKssc_TiCsPac8LMvnXLz31QLzoif4tdKAF2OzbDadFeL-qD4ya-LFKGsZXVp/exec";
 
+    // フルネーム判定用マッピング
     const memberMap = {
-        'CHECK-KOIKE': '小池',
-        'CHECK-ISHIKAWA': '石川',
-        'CHECK-OKAMOTO': '岡本',
-        'CHECK-MATSUO': '松尾',
-        'CHECK-OSAWA': '大澤',
-        'CHECK-KUZUHARA': '葛原',
-        'CHECK-FUJII': '藤井',
-        'CHECK-MUSU': '無州',
-        'CHECK-KATO': '加藤'
+        'CHECK-KOIKE': '小池大陸',
+        'CHECK-ISHIKAWA': '石川久恵',
+        'CHECK-OKAMOTO': '岡本慧',
+        'CHECK-MATSUO': '松尾健一朗',
+        'CHECK-OSAWA': '大澤彰二',
+        'CHECK-KUZUHARA': '葛原大暉',
+        'CHECK-FUJII': '藤井宏典',
+        'CHECK-MUSU': '無州愛',
+        'CHECK-KATO': '加藤みるく'
     };
 
     function toggleTransportSection() {
@@ -296,11 +304,20 @@
         submitBtn.disabled = true;
         loadingMsg.style.display = 'block';
 
+        // 森川さん同行チェックの反映処理
+        let basePlanner = document.getElementById('planner').value;
+        let isMorikawa = document.getElementById('morikawaAccompany').checked;
+        let finalPlanner = isMorikawa ? basePlanner + "（森川同行）" : basePlanner;
+
+        // 名前末尾に「様」を自動付与する処理
+        let rawName = document.getElementById('customerName').value.trim();
+        let formattedName = rawName.endsWith('様') ? rawName : rawName + '様';
+
         const data = {
-            planner: document.getElementById('planner').value,
+            planner: finalPlanner,
             date: document.getElementById('date').value,
             customerId: document.getElementById('customerId').value,
-            customerName: document.getElementById('customerName').value,
+            customerName: formattedName,
             startTime: document.getElementById('startTime').value,
             endTime: document.getElementById('endTime').value,
             transport: document.getElementById('transport').value,

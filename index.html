@@ -10,9 +10,12 @@
         h2 { text-align: center; color: #007bff; margin-bottom: 25px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: bold; }
-        input, select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
-        input:focus, select:focus { border-color: #007bff; outline: none; }
+        input, select, textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+        input:focus, select:focus, textarea:focus { border-color: #007bff; outline: none; }
         
+        /* 直帰禁止バナー */
+        .rule-banner { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 10px; border-radius: 5px; font-weight: bold; font-size: 14px; margin-bottom: 15px; text-align: center; }
+
         .sub-group { background: #f8f9fa; padding: 15px; border-left: 4px solid #007bff; border-radius: 0 5px 5px 0; margin-top: 10px; display: none; }
         .map-btn { background: #ff7e00; color: white; padding: 8px; border: none; border-radius: 5px; cursor: pointer; margin-top: 8px; width: 100%; font-weight: bold; }
         .map-btn:hover { background: #e57100; }
@@ -50,7 +53,6 @@
                 <option value="葛原大暉">葛原大暉</option>
             </select>
             
-            <!-- 森川さん同行チェックボックス -->
             <div style="margin-top: 8px;">
                 <label style="font-weight: normal; font-size: 14px; cursor: pointer;">
                     <input type="checkbox" id="morikawaAccompany" style="width: auto; margin-right: 5px;"> 🌲 森川さんと一緒に行く（同行あり）
@@ -82,8 +84,28 @@
             <input type="time" id="endTime" required>
         </div>
 
+        <!-- 想定作業料金（商品代含む） -->
         <div class="form-group">
-            <label>⑥ 移動手段</label>
+            <label>⑥ 想定作業料金（円・商品代含む）</label>
+            <div style="color: #d9534f; font-size: 13px; font-weight: bold; margin-bottom: 5px;">
+                ⚠️ 作業時・現地では必ず作業内容と料金を確認し、BASEへ電話したうえでお客さまに電話を代わっていただくようお願いいたします。
+            </div>
+            <input type="number" id="workFee" placeholder="例: 0" value="0" min="0" required>
+        </div>
+
+        <!-- 作業内容 -->
+        <div class="form-group">
+            <label>⑦ 作業内容</label>
+            <input type="text" id="workContent" placeholder="例: 契約手続き、設定作業など" required>
+        </div>
+
+        <!-- 直帰禁止バナー -->
+        <div class="rule-banner">
+            🚨 移動手段に関わらず、ラウンドからBASEへの戻りなし（直帰）は原則禁止です！
+        </div>
+
+        <div class="form-group">
+            <label>⑧ 移動手段</label>
             <select id="transport" onchange="toggleTransportSection()" required>
                 <option value="">選択してください</option>
                 <option value="公共交通機関">公共交通機関</option>
@@ -110,7 +132,7 @@
         </div>
 
         <div class="form-group">
-            <label>⑦ ONSITE区分</label>
+            <label>⑨ ONSITE区分</label>
             <select id="onsite" required>
                 <option value="">選択してください</option>
                 <option value="ONSITE">ONSITE</option>
@@ -118,7 +140,7 @@
             </select>
         </div>
         <div class="form-group">
-            <label>⑧ Asset数</label>
+            <label>⑩ Asset数</label>
             <select id="asset" required>
                 <option value="">選択してください</option>
                 <option value="0">0</option>
@@ -130,7 +152,7 @@
         </div>
 
         <div class="qr-section">
-            <label>🔒 ⑨ 第三者チェック（必須）</label>
+            <label>🔒 ⑪ 第三者チェック（必須）</label>
             
             <div style="text-align: left; margin: 10px 0; background: #ffffff; padding: 10px; border-radius: 5px; font-size: 14px;">
                 <label style="font-weight: normal; margin-bottom: 6px;">
@@ -164,7 +186,6 @@
     // ※スプレッドシートのWebアプリURLをここに貼り付け
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzUUg1RKssc_TiCsPac8LMvnXLz31QLzoif4tdKAF2OzbDadFeL-qD4ya-LFKGsZXVp/exec";
 
-    // フルネーム判定用マッピング
     const memberMap = {
         'CHECK-KOIKE': '小池大陸',
         'CHECK-ISHIKAWA': '石川久恵',
@@ -259,7 +280,6 @@
                     const verifierName = memberMap[qrText];
                     const plannerName = document.getElementById('planner').value;
 
-                    // 同一人物チェック：プランナーと確認者が同じなら弾く
                     if (plannerName === verifierName) {
                         alert("⚠️ プランナー自身を第三者確認者に指定することはできません。\n他のメンバーのQRコードを読み取ってください。");
                         stopCamera();
@@ -304,12 +324,10 @@
         submitBtn.disabled = true;
         loadingMsg.style.display = 'block';
 
-        // 森川さん同行チェックの反映処理
         let basePlanner = document.getElementById('planner').value;
         let isMorikawa = document.getElementById('morikawaAccompany').checked;
         let finalPlanner = isMorikawa ? basePlanner + "（森川同行）" : basePlanner;
 
-        // 名前末尾に「様」を自動付与する処理
         let rawName = document.getElementById('customerName').value.trim();
         let formattedName = rawName.endsWith('様') ? rawName : rawName + '様';
 
@@ -320,6 +338,8 @@
             customerName: formattedName,
             startTime: document.getElementById('startTime').value,
             endTime: document.getElementById('endTime').value,
+            workFee: document.getElementById('workFee').value,
+            workContent: document.getElementById('workContent').value,
             transport: document.getElementById('transport').value,
             stationFrom: document.getElementById('stationFrom').value,
             stationTo: document.getElementById('stationTo').value,
@@ -338,7 +358,7 @@
             body: JSON.stringify(data)
         })
         .then(() => {
-            alert('第三者確認が取れ、スプレッドシートに登録されました！');
+            alert('第三者確認が取れ、BASEの台帳（スプレッドシート）に登録されました！');
             document.getElementById('ledgerForm').reset();
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('verify-status').innerText = '❌ 未確認';

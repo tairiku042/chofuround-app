@@ -306,22 +306,37 @@
 
   document.getElementById('roundForm').addEventListener('submit', function(e) {
     e.preventDefault();
+
+    const plannerVal = document.getElementById('planner').value;
+    const verifierVal = document.getElementById('verifier').value;
+
+    // 同一人物チェックガード
+    if (plannerVal && verifierVal && plannerVal === verifierVal) {
+      alert('担当プランナーと第三者チェック者が同じ人物です。別の選択を行ってください。');
+      return;
+    }
     
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.disabled = true;
     submitBtn.innerText = '送信中...';
 
     // 森川さんにチェックがある場合は「プランナー名 (森川同行)」として送信
-    let selectedPlanner = document.getElementById('planner').value;
+    let selectedPlanner = plannerVal;
     if (document.getElementById('morikawaAccompany').checked) {
       selectedPlanner += "（森川同行）";
+    }
+
+    // お客様名の末尾に「様」を自動付与（既に様がついている場合は重ねない）
+    let rawCustomerName = document.getElementById('customerName').value.trim();
+    if (rawCustomerName && !rawCustomerName.endsWith('様')) {
+      rawCustomerName += '様';
     }
 
     const payload = {
       planner: selectedPlanner,
       date: document.getElementById('date').value,
       customerId: document.getElementById('customerId').value,
-      customerName: document.getElementById('customerName').value,
+      customerName: rawCustomerName,
       startTime: document.getElementById('startTime').value,
       endTime: document.getElementById('endTime').value,
       workFee: document.getElementById('workFee').value,
@@ -332,7 +347,7 @@
       fare: document.getElementById('fare').value,
       onsite: document.getElementById('onsite').value,
       asset: document.getElementById('asset').value,
-      verifier: document.getElementById('verifier').value
+      verifier: verifierVal
     };
 
     fetch(WEB_APP_URL, {
